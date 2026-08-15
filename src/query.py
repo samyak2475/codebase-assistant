@@ -3,8 +3,18 @@ from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
+import os
 
-def get_qa_chain(persist_directory: str = "data/chroma_db"):
+def get_qa_chain():
+    # Read the latest database path
+    latest_file = "data/latest_db.txt"
+    
+    if not os.path.exists(latest_file):
+        raise FileNotFoundError("No codebase has been indexed yet.")
+    
+    with open(latest_file, "r") as f:
+        persist_directory = f.read().strip()
+    
     embeddings = OllamaEmbeddings(model="nomic-embed-text")
     vectorstore = Chroma(
         persist_directory=persist_directory,
@@ -14,15 +24,16 @@ def get_qa_chain(persist_directory: str = "data/chroma_db"):
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
     
     llm = ChatOllama(
-        model="qwen2.5-coder:3b",   # change to "llama3.2:3b" if this model is missing
+        model="qwen2.5-coder:3b",
         temperature=0.1
     )
     
-    template = """You are a helpful coding assistant. 
-Answer the question using only the provided code context.
-If you don't know, say you don't know. Be concise and clear.
+    template = """You are a helpful local coding assistant running fully offline.
 
-Context:
+Use the provided code context to answer questions about the project whenever possible.
+If the question is general or the context does not contain the answer, you can still reply helpfully but clearly state when you are not using the codebase.
+
+Context from the codebase:
 {context}
 
 Question: {question}
@@ -39,20 +50,3 @@ Answer:"""
     )
     
     return chain
-
-if __name__ == "__main__":
-    chain = get_qa_chain()
-    
-    print("\n=== Local Codebase Assistant ===")
-    print("Type your question (or 'quit' to exit)\n")
-    
-    while True:
-        question = input("You: ").strip()
-        if question.lower() in ["quit", "exit", "q"]:
-            break
-        if not question:
-            continue
-            
-        print("\nThinking...")
-        answer = chain.invoke(question)
-        print(f"\nAssistant: {answer}\n")
