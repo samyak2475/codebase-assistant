@@ -40,7 +40,7 @@ A fully local AI coding assistant that indexes any codebase and answers question
 3.Choose a mode + optional filter, then ask questions.
 
 Project Structure
-textcodebase-assistant/
+codebase-assistant/
 ├── app.py                 # Streamlit UI
 ├── src/
 │   ├── indexer.py         # AST-aware indexing
