@@ -2,15 +2,20 @@
 
 A fully local AI coding assistant that indexes any codebase and answers questions about it using small open-source models.
 
-**100% private • Zero cloud • Runs on modest hardware**
+**100% private • Zero cloud • Runs on modest hardware (tested on 16GB RAM + 4GB VRAM)**
 
 ## Features
 
 - Index any local project folder
-- Ask natural language questions about the code
-- Powered by Ollama + Chroma
+- AST-aware chunking for Python (functions & classes as separate units)
+- Specialized modes:
+  - General Question
+  - Explain Function/Class
+  - Architecture Overview
+  - Suggest Improvements
+- Optional filtering (Functions only / Classes only)
 - Clean Streamlit interface
-- Works offline
+- Fully offline
 
 ## Tech Stack
 
@@ -18,18 +23,27 @@ A fully local AI coding assistant that indexes any codebase and answers question
 - **Embeddings**: `nomic-embed-text`
 - **Vector Store**: Chroma
 - **Framework**: LangChain + Streamlit
-- **Hardware tested**: ASUS A15 (Ryzen 7 + 16GB RAM + 4GB VRAM)
+- **Code parsing**: Python AST
 
 ## How to Run
 
-1. Make sure Ollama is running and the models are pulled:
+1. Make sure Ollama is running and models are pulled:
    ```bash
    ollama pull qwen2.5-coder:3b
    ollama pull nomic-embed-text
+
+2. Activate environment and start:Bashconda activate codeassist
+   streamlit run app.py
    
-2. Activate the environment and start the app:Bashconda activate codeassist
-    streamlit run app.py
+   In the sidebar, paste the full path of any project and click Index this folder.
 
-3. In the sidebar, paste the full path of any project folder and click Index this folder.
+3.Choose a mode + optional filter, then ask questions.
 
-4. Start asking questions.
+Project Structure
+textcodebase-assistant/
+├── app.py                 # Streamlit UI
+├── src/
+│   ├── indexer.py         # AST-aware indexing
+│   └── query.py           # Retrieval + filtering
+├── data/                  # Vector stores (auto-generated)
+└── README.md
