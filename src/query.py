@@ -5,8 +5,10 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 import os
 
-def get_qa_chain():
-    # Read the latest database path
+def get_qa_chain(filter_type: str = None):
+    """
+    filter_type can be: None, "function", or "class"
+    """
     latest_file = "data/latest_db.txt"
     
     if not os.path.exists(latest_file):
@@ -21,7 +23,12 @@ def get_qa_chain():
         embedding_function=embeddings
     )
     
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+    # Apply metadata filter if requested
+    search_kwargs = {"k": 5}
+    if filter_type in ["function", "class"]:
+        search_kwargs["filter"] = {"type": filter_type}
+    
+    retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
     
     llm = ChatOllama(
         model="qwen2.5-coder:3b",
@@ -30,8 +37,8 @@ def get_qa_chain():
     
     template = """You are a helpful local coding assistant running fully offline.
 
-Use the provided code context to answer questions about the project whenever possible.
-If the question is general or the context does not contain the answer, you can still reply helpfully but clearly state when you are not using the codebase.
+Use the provided code context to answer the question.
+Be specific and refer to actual function/class names when possible.
 
 Context from the codebase:
 {context}

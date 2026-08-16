@@ -36,6 +36,14 @@ with st.sidebar:
     )
     
     st.markdown("---")
+    st.header("Filter (Optional)")
+    filter_type = st.selectbox(
+        "Focus only on:",
+        ["All", "Functions only", "Classes only"],
+        index=0
+    )
+    
+    st.markdown("---")
     st.header("About")
     st.markdown("""
     - 100% private
@@ -44,18 +52,26 @@ with st.sidebar:
     """)
     st.code("qwen2.5-coder:3b\nnomic-embed-text")
 
-# Load chain
+# Convert filter selection
+filter_map = {
+    "All": None,
+    "Functions only": "function",
+    "Classes only": "class"
+}
+selected_filter = filter_map[filter_type]
+
+# Load chain with filter
 @st.cache_resource
-def load_chain():
-    return get_qa_chain()
+def load_chain(filter_type):
+    return get_qa_chain(filter_type=filter_type)
 
 try:
-    chain = load_chain()
+    chain = load_chain(selected_filter)
 except Exception:
     st.info("No codebase indexed yet. Please index a folder using the sidebar.")
     st.stop()
 
-# Chat
+# Chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -65,7 +81,7 @@ for message in st.session_state.messages:
 
 if prompt := st.chat_input("Ask something about the codebase..."):
     
-    # Build better prompt based on mode
+    # Build prompt based on mode
     if mode == "Explain Function/Class":
         full_prompt = f"Explain the following function or class in detail, including what it does, parameters, and how it works:\n\n{prompt}"
     elif mode == "Architecture Overview":
