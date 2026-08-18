@@ -47,3 +47,5 @@ codebase-assistant/
 │   └── query.py           # Retrieval + filtering
 ├── data/                  # Vector stores (auto-generated)
 └── README.md
+
+> Fully local AI coding assistant with AST-aware indexing, specialized query modes, and metadata filtering.
