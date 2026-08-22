@@ -49,3 +49,22 @@ codebase-assistant/
 └── README.md
 
 > Fully local AI coding assistant with AST-aware indexing, specialized query modes, and metadata filtering.
+
+## Project Structure
+
+codebase-assistant/
+├── app.py                  # Streamlit UI with modes & filters
+├── src/
+│   ├── indexer.py          # AST-aware code indexing
+│   └── query.py            # Retrieval + metadata filtering
+├── data/                   # Auto-generated vector stores
+├── requirements.txt
+├── LICENSE
+└── README.md
+
+
+## Notes
+
+- Designed to run fully offline on modest hardware (tested on 16GB RAM + 4GB VRAM).
+- Uses small open-source models only.
+- No cloud APIs or paid services required.
